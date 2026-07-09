@@ -1,0 +1,65 @@
+name: "TrustBeat Anchor — qualified EU timestamps"
+description: >-
+  Anchor your release artifacts with an eIDAS-qualified timestamp — legal proof
+  of *when*, presumed valid in court across the EU (eIDAS Art. 41). Audit-grade
+  evidence for NIS2 / DORA. One YAML block instead of a QTSP contract.
+author: "Trustbeat s.r.o."
+
+branding:
+  icon: anchor
+  color: blue
+
+inputs:
+  api-key:
+    description: >-
+      TrustBeat API key (tb_live_…). Store it as a repository secret. Free tier:
+      100 anchors/month, no card — https://trustbeat.eu/register
+    required: true
+  files:
+    description: >-
+      Files to anchor — one glob or path per line (e.g. dist/*.tar.gz). Each
+      file's SHA-256 is computed locally; file contents never leave the runner.
+    required: true
+  description:
+    description: Human-readable label stored with each anchor. Defaults to "<repo>@<ref>".
+    required: false
+    default: ""
+  client-ref:
+    description: Your correlation reference stored with each anchor. Defaults to the commit SHA.
+    required: false
+    default: ""
+  wait:
+    description: >-
+      "true" to block until the inclusion proof is issued (next ~10-minute
+      batch). Default "false": submit and finish fast — the proof and badge
+      links go live automatically when the batch fires.
+    required: false
+    default: "false"
+  api-url:
+    description: TrustBeat API base URL.
+    required: false
+    default: "https://api.trustbeat.eu"
+
+outputs:
+  results:
+    description: >-
+      JSON array of {file, hash, id, verify_url, badge_url} — one entry per
+      anchored file.
+    value: ${{ steps.anchor.outputs.results }}
+  ids:
+    description: JSON array of tracking IDs.
+    value: ${{ steps.anchor.outputs.ids }}
+
+runs:
+  using: composite
+  steps:
+    - id: anchor
+      shell: bash
+      env:
+        TRUSTBEAT_API_KEY: ${{ inputs.api-key }}
+        TRUSTBEAT_FILES: ${{ inputs.files }}
+        TRUSTBEAT_DESCRIPTION: ${{ inputs.description }}
+        TRUSTBEAT_CLIENT_REF: ${{ inputs.client-ref }}
+        TRUSTBEAT_WAIT: ${{ inputs.wait }}
+        TRUSTBEAT_API_URL: ${{ inputs.api-url }}
+      run: bash "${{ github.action_path }}/anchor.sh"

@@ -1,0 +1,46 @@
+# Self-test for TrustBeat/anchor-action. Lives in the mirror repo (mirrored
+# from eu-security-app action/); does NOT run in the monorepo.
+#
+# Requires the TRUSTBEAT_API_KEY repository secret (a real tb_live_/tb_test_
+# key for a test account). Anchors a freshly generated file against the live
+# API with wait=false (fast) and asserts the outputs.
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+
+      - name: Create test artifact
+        run: |
+          mkdir -p dist
+          echo "anchor-action self-test $(date -u +%FT%TZ) ${GITHUB_SHA}" > dist/test-artifact.txt
+
+      - name: Anchor it (the action under test)
+        id: anchor
+        uses: ./
+        with:
+          api-key: ${{ secrets.TRUSTBEAT_API_KEY }}
+          files: dist/*.txt
+          description: "anchor-action CI self-test"
+
+      - name: Assert outputs
+        env:
+          RESULTS: ${{ steps.anchor.outputs.results }}
+          IDS: ${{ steps.anchor.outputs.ids }}
+        run: |
+          echo "results: $RESULTS"
+          echo "ids: $IDS"
+          test "$(echo "$RESULTS" | jq 'length')" = "1"
+          test "$(echo "$IDS" | jq -r '.[0]' | wc -c)" -gt 10
+          echo "$RESULTS" | jq -e '.[0].verify_url | startswith("https://trustbeat.eu/verify?id=")'
