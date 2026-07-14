@@ -6,7 +6,7 @@ across all 27 EU member states (eIDAS Art. 41). One YAML block instead of a
 QTSP contract.
 
 - ⚖️ **Court-grade evidence** — qualified timestamps from EU Trusted List
-  providers (SK ID Solutions), not a self-run TSA
+  providers, not a self-run TSA
 - 🛡️ **NIS2 / DORA audit evidence** — prove your artifacts, SBOMs and reports
   existed unmodified at a point in time
 - 🔒 **Nothing leaves your runner** — the SHA-256 is computed locally; only the
