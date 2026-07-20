@@ -1,8 +1,7 @@
 name: "TrustBeat Anchor — qualified EU timestamps"
 description: >-
-  Anchor your release artifacts with an eIDAS-qualified timestamp — legal proof
-  of *when*, presumed valid in court across the EU (eIDAS Art. 41). Audit-grade
-  evidence for NIS2 / DORA. One YAML block instead of a QTSP contract.
+  eIDAS-qualified timestamps for your CI artifacts — court-grade legal proof of
+  when for NIS2/DORA, in one YAML block.
 author: "Trustbeat s.r.o."
 
 branding:
